@@ -22,27 +22,31 @@ def get_current_commit(repo_path: str) -> str:
     )
 
 
-def send_requests(commit: str, repo_path: str, server_url: str) -> None:
+def run_step(
+    commit: str,
+    repo_path: str,
+    server_url: str,
+    step: str,
+) -> bool:
     """
-    Sends POST requests to the server for linting, building, and testing.
+    Runs a CI pipeline step and checks if it succeeded.
+
+    Sends a POST request to the server to run a CI step. Checks the
+    response status code to see if the step executed successfully.
 
     Args:
         commit (str): The commit hash.
         repo_path (str): The path to the repository.
         server_url (str): The URL of the server.
+
+    Returns:
+        bool: True if the step executed successfully, False otherwise.
     """
-    requests.post(
+    response = requests.post(
         server_url,
-        json={"commit_hash": commit, "step_name": "lint", "repo_path": repo_path},
+        json={"commit_hash": commit, "step_name": step, "repo_path": repo_path},
     )
-    requests.post(
-        server_url,
-        json={"commit_hash": commit, "step_name": "build", "repo_path": repo_path},
-    )
-    requests.post(
-        server_url,
-        json={"commit_hash": commit, "step_name": "test", "repo_path": repo_path},
-    )
+    return response.status_code == 200
 
 
 def ci_service(repo_path: str, server_url: str) -> None:
@@ -63,11 +67,6 @@ def ci_service(repo_path: str, server_url: str) -> None:
             last_commit = current_commit
 
         time.sleep(1)
-
-        if new_commits and time.time() % 10 < 1:
-            for commit in new_commits:
-                send_requests(commit, repo_path, server_url)
-                new_commits.remove(commit)
 
 
 def main() -> None:
