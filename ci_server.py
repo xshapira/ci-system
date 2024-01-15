@@ -5,7 +5,7 @@ from pathlib import Path
 import requests
 
 
-def get_current_commit(repo_path):
+def get_current_commit(repo_path: str) -> str:
     """
     Gets the current commit hash of the repository.
 
@@ -22,7 +22,7 @@ def get_current_commit(repo_path):
     )
 
 
-def send_requests(commit, repo_path, server_url):
+def send_requests(commit: str, repo_path: str, server_url: str) -> None:
     """
     Sends POST requests to the server for linting, building, and testing.
 
@@ -45,7 +45,7 @@ def send_requests(commit, repo_path, server_url):
     )
 
 
-def ci_service(repo_path, server_url):
+def ci_service(repo_path: str, server_url: str) -> None:
     """
     Continuously check for new commits and send requests to the server.
 
