@@ -1,9 +1,8 @@
 # Sorry for the mess, I left the code in a hurry! I'm sure you can figure it
 # out. Good luck!
-
 import subprocess
-import sys
 import time
+from pathlib import Path
 
 import requests
 
@@ -50,5 +49,13 @@ def ci_service(rep, srv):
                 print(r1, r2, r3)
 
 
+def main() -> None:
+    # get absolute path
+    repo_path = Path.cwd().resolve()
+    server_url = "http://localhost:8080"
+
+    ci_service(repo_path, server_url)
+
+
 if __name__ == "__main__":
-    ci_service(sys.argv[1], sys.argv[2])
+    main()
