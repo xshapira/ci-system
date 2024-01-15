@@ -72,7 +72,8 @@ def ci_service(repo_path: str, server_url: str) -> None:
 
 def main() -> None:
     repo_path = sys.argv[1]
-    server_url = int(sys.argv[2].lstrip(":"))
+    server_port = sys.argv[2].lstrip(":")
+    server_url = f"http://localhost:{server_port}"
 
     ci_service(repo_path, server_url)
 
