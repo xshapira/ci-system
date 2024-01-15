@@ -7,8 +7,6 @@ authors = ["Max Shapira <max@winoutt.com>"]
 [tool.poetry.dependencies]
 python = "^3.11"
 requests = "^2.31.0"
-fastapi = "^0.109.0"
-uvicorn = "^0.25.0"
 
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.1.13"
