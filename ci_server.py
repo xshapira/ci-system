@@ -1,6 +1,6 @@
 import subprocess
+import sys
 import time
-from pathlib import Path
 
 import requests
 
@@ -71,9 +71,8 @@ def ci_service(repo_path: str, server_url: str) -> None:
 
 
 def main() -> None:
-    # get absolute path
-    repo_path = str(Path.cwd().resolve())
-    server_url = "http://localhost:8080"
+    repo_path = sys.argv[1]
+    server_url = int(sys.argv[2].lstrip(":"))
 
     ci_service(repo_path, server_url)
 
