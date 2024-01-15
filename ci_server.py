@@ -75,6 +75,9 @@ def main() -> None:
     server_port = sys.argv[2].lstrip(":")
     server_url = f"http://localhost:{server_port}"
 
+    if not server_url.startswith("http"):
+        server_url = f"http://{server_url}"
+
     ci_service(repo_path, server_url)
 
 
