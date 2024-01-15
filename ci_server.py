@@ -68,6 +68,20 @@ def ci_service(repo_path: str, server_url: str) -> None:
 
         time.sleep(1)
 
+        if new_commits and time.time() % 10 < 1:
+            for commit in new_commits:
+                passed = run_step(commit, repo_path, server_url, "lint")
+                if not passed:
+                    print(f"Lint failed for commit {commit}")
+                    continue
+                passed = run_step(commit, repo_path, server_url, "build")
+                if not passed:
+                    print(f"Build failed for commit {commit}")
+                    continue
+                run_step(commit, repo_path, server_url, "test")
+                new_commits.remove(commit)
+            print("CI run complete!")
+
 
 def main() -> None:
     repo_path = sys.argv[1]
