@@ -51,7 +51,7 @@ def ci_service(rep, srv):
 
 def main() -> None:
     # get absolute path
-    repo_path = Path.cwd().resolve()
+    repo_path = str(Path.cwd().resolve())
     server_url = "http://localhost:8080"
 
     ci_service(repo_path, server_url)
