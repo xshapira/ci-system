@@ -46,7 +46,11 @@ def run_step(
         server_url,
         json={"commit_hash": commit, "step_name": step, "repo_path": repo_path},
     )
-    return response.status_code == 200
+    if response.status_code != 200:
+        return False
+    response_data = response.json()
+
+    return response_data.get("status") == "success"
 
 
 def ci_service(repo_path: str, server_url: str) -> None:
