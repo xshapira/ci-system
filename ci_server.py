@@ -5,6 +5,17 @@ import time
 import requests
 
 
+class CIDataManager:
+    def __init__(self):
+        self.ci_runs = []
+
+    def add_run(self, run_data):
+        self.ci_runs.append(run_data)
+
+    def get_runs(self):
+        return self.ci_runs
+
+
 def get_current_commit(repo_path: str) -> str:
     """
     Gets the current commit hash of the repository.
