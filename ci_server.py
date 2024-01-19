@@ -1,3 +1,4 @@
+import asyncio
 import subprocess
 import sys
 import time
@@ -64,7 +65,7 @@ def run_step(
     return response_data.get("status") == "success"
 
 
-def ci_service(
+async def ci_service(
     repo_path: str,
     server_url: str,
     data_manager: CIDataManager,
@@ -76,16 +77,16 @@ def ci_service(
         repo_path (str): The path to the repository.
         server_url (str): The URL of the server.
     """
-    last_commit = get_current_commit(repo_path)
+    last_commit = await get_current_commit(repo_path)
     new_commits = []
 
     while True:
-        current_commit = get_current_commit(repo_path)
+        current_commit = await get_current_commit(repo_path)
         if current_commit != last_commit:
             new_commits.append(current_commit)
             last_commit = current_commit
 
-        time.sleep(1)
+        await asyncio.sleep(1)  # non-blocking sleep
 
         if new_commits and time.time() % 10 < 1:
             for commit in new_commits:
@@ -94,21 +95,21 @@ def ci_service(
                     "status": "success",
                 }
 
-                passed = run_step(commit, repo_path, server_url, "lint")
+                passed = await run_step(commit, repo_path, server_url, "lint")
                 if not passed:
                     print(f"Lint failed for commit {commit}")
                     run_result["status"] = "failure"
                     data_manager.add_run(run_result)
                     continue
 
-                passed = run_step(commit, repo_path, server_url, "build")
+                passed = await run_step(commit, repo_path, server_url, "build")
                 if not passed:
                     print(f"Build failed for commit {commit}")
                     run_result["status"] = "failure"
                     data_manager.add_run(run_result)
                     continue
 
-                run_step(commit, repo_path, server_url, "test")
+                await run_step(commit, repo_path, server_url, "test")
                 data_manager.add_run(run_result)
 
                 new_commits.remove(commit)
