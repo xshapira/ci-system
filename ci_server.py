@@ -64,7 +64,11 @@ def run_step(
     return response_data.get("status") == "success"
 
 
-def ci_service(repo_path: str, server_url: str) -> None:
+def ci_service(
+    repo_path: str,
+    server_url: str,
+    data_manager: CIDataManager,
+) -> None:
     """
     Continuously check for new commits and send requests to the server.
 
@@ -85,15 +89,28 @@ def ci_service(repo_path: str, server_url: str) -> None:
 
         if new_commits and time.time() % 10 < 1:
             for commit in new_commits:
+                run_result = {
+                    "commit_hash": commit,
+                    "status": "success",
+                }
+
                 passed = run_step(commit, repo_path, server_url, "lint")
                 if not passed:
                     print(f"Lint failed for commit {commit}")
+                    run_result["status"] = "failure"
+                    data_manager.add_run(run_result)
                     continue
+
                 passed = run_step(commit, repo_path, server_url, "build")
                 if not passed:
                     print(f"Build failed for commit {commit}")
+                    run_result["status"] = "failure"
+                    data_manager.add_run(run_result)
                     continue
+
                 run_step(commit, repo_path, server_url, "test")
+                data_manager.add_run(run_result)
+
                 new_commits.remove(commit)
             print("CI run complete!")
 
