@@ -1,9 +1,8 @@
 import asyncio
-import subprocess
 import sys
 import time
 
-import requests
+import httpx
 
 
 class CIDataManager:
@@ -17,7 +16,7 @@ class CIDataManager:
         return self.ci_runs
 
 
-def get_current_commit(repo_path: str) -> str:
+async def get_current_commit(repo_path: str) -> str:
     """
     Gets the current commit hash of the repository.
 
@@ -27,14 +26,23 @@ def get_current_commit(repo_path: str) -> str:
     Returns:
         str: The current commit hash.
     """
-    return (
-        subprocess.check_output(["git", "-C", repo_path, "rev-parse", "HEAD"])
-        .strip()
-        .decode("utf-8")
+
+    # execute a git command asynchronously to get current commit hash
+    process = await asyncio.create_subprocess_exec(
+        "git",
+        "-C",
+        repo_path,
+        "rev-parse",
+        "HEAD",
+        stdout=asyncio.subprocess.PIPE,  # capture only standard output
     )
+    stdout, _ = await process.communicate()
+    # return None if the command fails
+    # otherwise decode and return the commit hash
+    return None if process.returncode != 0 else stdout.decode("utf-8").strip()
 
 
-def run_step(
+async def run_step(
     commit: str,
     repo_path: str,
     server_url: str,
@@ -54,10 +62,11 @@ def run_step(
     Returns:
         bool: True if the step executed successfully, False otherwise.
     """
-    response = requests.post(
-        server_url,
-        json={"commit_hash": commit, "step_name": step, "repo_path": repo_path},
-    )
+    async with httpx.AsyncClient() as client:
+        response = await client.post(
+            server_url,
+            json={"commit_hash": commit, "step_name": step, "repo_path": repo_path},
+        )
     if response.status_code != 200:
         return False
     response_data = response.json()
