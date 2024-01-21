@@ -125,7 +125,8 @@ async def ci_service(
             print("CI run complete!")
 
 
-def main() -> None:
+async def main() -> None:
+    data_manager = CIDataManager()
     repo_path = sys.argv[1]
     server_port = sys.argv[2].lstrip(":")
     server_url = f"http://localhost:{server_port}"
@@ -133,8 +134,13 @@ def main() -> None:
     if not server_url.startswith("http"):
         server_url = f"http://{server_url}"
 
-    ci_service(repo_path, server_url)
+    # ci_service(repo_path, server_url)
+
+    # start the CI service as a background task
+    asyncio.create_task(ci_service(repo_path, server_url, data_manager))
 
 
 if __name__ == "__main__":
-    main()
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(main())
+    loop.close()
