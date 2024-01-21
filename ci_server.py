@@ -3,6 +3,7 @@ import sys
 import time
 
 import httpx
+from fastapi import FastAPI, Response
 
 
 class CIDataManager:
@@ -14,6 +15,10 @@ class CIDataManager:
 
     def get_runs(self):
         return self.ci_runs
+
+
+app = FastAPI()
+data_manager = CIDataManager()
 
 
 async def get_current_commit(repo_path: str) -> str:
@@ -125,8 +130,17 @@ async def ci_service(
             print("CI run complete!")
 
 
+@app.get("/")
+def read_root():
+    return Response("Server is running.")
+
+
+@app.get("/runs")
+def read_runs():
+    return data_manager.get_runs()
+
+
 async def main() -> None:
-    data_manager = CIDataManager()
     repo_path = sys.argv[1]
     server_port = sys.argv[2].lstrip(":")
     server_url = f"http://localhost:{server_port}"
@@ -137,10 +151,12 @@ async def main() -> None:
     # ci_service(repo_path, server_url)
 
     # start the CI service as a background task
-    asyncio.create_task(ci_service(repo_path, server_url, data_manager))
+    # asyncio.create_task(ci_service(repo_path, server_url, data_manager))
+    await ci_service(repo_path, server_url, data_manager)
 
 
 if __name__ == "__main__":
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(main())
-    loop.close()
+    # loop = asyncio.get_event_loop()
+    # loop.run_until_complete(main())
+    # loop.close()
+    asyncio.run(main())
