@@ -87,12 +87,17 @@ async def run_step(
     }
     print(f"Sending request to {server_url} with data: {request_data}")
 
-    async with httpx.AsyncClient() as client:
-        response = await client.post(
-            server_url,
-            json=request_data,
-        )
-    print(f"Response for {step} step: {response.status_code}, {response.text}")
+    try:
+        async with httpx.AsyncClient() as client:
+            response = await client.post(
+                server_url,
+                json=request_data,
+            )
+        print(f"Response for {step} step: {response.status_code}, {response.text}")
+    except httpx.HTTPError as exc:
+        print(f"HTTP error occurred: {exc}")
+        return False
+
     if response.status_code != 200:
         return False
     response_data = response.json()
