@@ -105,10 +105,10 @@ func stepTriggerHandler(w http.ResponseWriter, r *http.Request) {
 
 		// Randomly, 1 of 5 times, simulate a total server crash because of a
 		// test failure (like a Segfault in the test runner, for example),
-		// unless the ORCA_CI_SERVER_CRASHABLE environment variable is set to
+		// unless the CI_SERVER_CRASHABLE environment variable is set to
 		// "false".
 
-		if os.Getenv("ORCA_CI_SERVER_CRASHABLE") == "false" {
+		if os.Getenv("CI_SERVER_CRASHABLE") == "false" {
 			break
 		}
 		if rand.Intn(5) == 0 {
@@ -138,7 +138,7 @@ const DEFAULT_SERVER_ADDR = ":8080"
 
 func main() {
 	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
-	serverAddr := os.Getenv("ORCA_STEP_RUNNER_SERVER_ADDR")
+	serverAddr := os.Getenv("STEP_RUNNER_SERVER_ADDR")
 	if serverAddr == "" {
 		serverAddr = DEFAULT_SERVER_ADDR
 	}
