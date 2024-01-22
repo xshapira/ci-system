@@ -152,7 +152,7 @@ async def main() -> None:
 
     # start the CI service as a background task
     # asyncio.create_task(ci_service(repo_path, server_url, data_manager))
-    await ci_service(repo_path, server_url, data_manager)
+    asyncio.create_task(ci_service(repo_path, server_url, data_manager))
 
 
 if __name__ == "__main__":
