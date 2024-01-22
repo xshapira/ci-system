@@ -34,6 +34,14 @@ def read_runs():
     return {"total": len(runs), "data": runs}
 
 
+@app.get("/run/{commit_hash}")
+def read_run(commit_hash: str):
+    # Search for specific commit in the data_manager's records
+    for run in data_manager.get_runs():
+        if run["id"] == commit_hash:
+            return run
+
+
 async def get_current_commit(repo_path: str) -> str:
     """
     Gets the current commit hash of the repository.
