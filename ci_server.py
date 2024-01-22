@@ -143,24 +143,16 @@ async def ci_service(
                     "id": commit,
                     "status": "success",
                 }
-                # Lint step
-                passed = await run_step(commit, repo_path, server_url, "lint")
-                if not passed:
-                    print(f"Lint failed for commit {commit}")
-                    run_result["status"] = "failure"
-                    continue
-                # Build step
-                passed = await run_step(commit, repo_path, server_url, "build")
-                if not passed:
-                    print(f"Build failed for commit {commit}")
-                    run_result["status"] = "failure"
-                    continue
-                # Test step
-                passed = await run_step(commit, repo_path, server_url, "test")
-                if not passed:
-                    print(f"Test failed for commit {commit}")
-                    run_result["status"] = "failure"
-                    continue
+                for step in ["lint", "build", "test"]:
+                    passed = await run_step(commit, repo_path, server_url, step)
+                    if not passed:
+                        print(f"{step.capitalize()} failed for commit {commit}")
+                        # If 'failed_steps' doesn't exist, return empty list
+                        failed_steps = run_result.get("failed_steps", [])
+                        failed_steps.append(step)
+                        # Update run_result with modified failed_steps list
+                        run_result["failed_steps"] = failed_steps
+                        run_result["status"] = "failure"
 
                 data_manager.add_run(run_result)
             print("CI run complete!")
