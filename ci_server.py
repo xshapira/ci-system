@@ -69,16 +69,24 @@ async def run_step(
     Returns:
         bool: True if the step executed successfully, False otherwise.
     """
+    request_data = {
+        "commit_hash": commit,
+        "step_name": step,
+        "repo_path": repo_path,
+    }
+    print(f"Sending request to {server_url} with data: {request_data}")
+
     async with httpx.AsyncClient() as client:
         response = await client.post(
             server_url,
-            json={"commit_hash": commit, "step_name": step, "repo_path": repo_path},
+            json=request_data,
         )
+    print(f"Response for {step} step: {response.status_code}, {response.text}")
     if response.status_code != 200:
         return False
     response_data = response.json()
 
-    return response_data.get("status") == "success"
+    return response_data.get("status") == "Success"
 
 
 async def ci_service(
@@ -105,9 +113,10 @@ async def ci_service(
         await asyncio.sleep(1)  # non-blocking sleep
 
         if new_commits and time.time() % 10 < 1:
-            for commit in new_commits:
+            while new_commits:
+                commit = new_commits.pop(0)
                 run_result = {
-                    "commit_hash": commit,
+                    "id": commit,
                     "status": "success",
                 }
 
@@ -128,8 +137,22 @@ async def ci_service(
                 await run_step(commit, repo_path, server_url, "test")
                 data_manager.add_run(run_result)
 
-                new_commits.remove(commit)
+                # new_commits.remove(commit)
             print("CI run complete!")
+
+
+async def test_lint_step():
+    repo_path = "/Users/maxshapira/Development/public/orca-security-project"
+    server_url = "http://localhost:8080"
+    commit = "3ea1579cdfaca7a53a7976188aad688cd536e06e"
+
+    while True:
+        passed = await run_step(commit, repo_path, server_url, "lint")
+        if not passed:
+            print("Lint step failed")
+        else:
+            print("Lint step succeeded")
+        await asyncio.sleep(10)
 
 
 @app.get("/")
@@ -145,7 +168,7 @@ def read_runs():
 async def main() -> None:
     repo_path = sys.argv[1]
     server_port = sys.argv[2].lstrip(":")
-    server_url = f"http://localhost:{server_port}"
+    server_url = f"http://localhost:{server_port}/step/trigger"
 
     if not server_url.startswith("http"):
         server_url = f"http://{server_url}"
@@ -154,6 +177,7 @@ async def main() -> None:
 
     # start the CI service as a background task
     asyncio.create_task(ci_service(repo_path, server_url, data_manager))
+    # asyncio.create_task(test_lint_step())
 
     # configure and run the FastAPI app on a different port
     uvicorn_config = uvicorn.Config(app=app, host="0.0.0.0", port=9000, loop="asyncio")
