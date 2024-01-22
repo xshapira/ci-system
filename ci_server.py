@@ -94,15 +94,20 @@ async def run_step(
                 json=request_data,
             )
         print(f"Response for {step} step: {response.status_code}, {response.text}")
+
+        if response.status_code != 200:
+            return False
+        response_data = response.json()
+        return response_data.get("status") == "Success"
+
     except httpx.HTTPError as exc:
         print(f"HTTP error occurred: {exc}")
         return False
-
-    if response.status_code != 200:
-        return False
-    response_data = response.json()
-
-    return response_data.get("status") == "Success"
+    except httpx.RemoteProtocolError:
+        if step == "test":
+            # If a server crash is expected during the 'test' step, handle it.
+            print(f"Server crash expected during the 'test' step. Commit {commit}")
+            return False
 
 
 async def ci_service(
