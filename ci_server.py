@@ -3,6 +3,7 @@ import sys
 import time
 
 import httpx
+import uvicorn
 from fastapi import FastAPI, Response
 
 
@@ -12,6 +13,7 @@ class CIDataManager:
 
     def add_run(self, run_data):
         self.ci_runs.append(run_data)
+        print(f"Added run data: {run_data}")
 
     def get_runs(self):
         return self.ci_runs
@@ -151,8 +153,12 @@ async def main() -> None:
     # ci_service(repo_path, server_url)
 
     # start the CI service as a background task
-    # asyncio.create_task(ci_service(repo_path, server_url, data_manager))
     asyncio.create_task(ci_service(repo_path, server_url, data_manager))
+
+    # configure and run the FastAPI app on a different port
+    uvicorn_config = uvicorn.Config(app=app, host="0.0.0.0", port=9000, loop="asyncio")
+    server = uvicorn.Server(config=uvicorn_config)
+    await server.serve()
 
 
 if __name__ == "__main__":
