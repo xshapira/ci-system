@@ -4,12 +4,19 @@
 
 A go program that simulates a build server. To run it, you can:
 
-* Run with docker (Recommended): Run `docker build -t ci-server . && docker run -it -p 8080:8080 ci-server`
-* Run locally: Run `go run main.go` in the root directory of this project.
+* Run with docker (Recommended):
 
-You can control the server address with the `STEP_RUNNER_SERVER_ADDR`
+```docker
+  docker build -t ci-server . && docker run -it -p 8080:8080 ci-server
+  ```
 
-environment variable, by default it will be `:8080` .
+* Run locally in the root directory of this project:
+
+```go
+  go run main.go
+  ```
+
+You can control the server address with the `STEP_RUNNER_SERVER_ADDR` environment variable, by default it will be `:8080` .
 
 ### API documentation
 
