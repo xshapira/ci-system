@@ -162,7 +162,8 @@ def read_root():
 
 @app.get("/runs")
 def read_runs():
-    return data_manager.get_runs()
+    runs = data_manager.get_runs()
+    return {"total": len(runs), "data": runs}
 
 
 async def main() -> None:
