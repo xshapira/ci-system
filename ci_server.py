@@ -147,20 +147,30 @@ async def ci_service(
                 passed = await run_step(commit, repo_path, server_url, "lint")
                 if not passed:
                     print(f"Lint failed for commit {commit}")
+                    # If 'failed_steps' doesn't exist, return empty list
+                    failed_steps = run_result.get("failed_steps", [])
+                    failed_steps.append("lint")
+                    # Update run_result with modified failed_steps list
+                    run_result["failed_steps"] = failed_steps
                     run_result["status"] = "failure"
-                    continue
                 # Build step
-                passed = await run_step(commit, repo_path, server_url, "build")
-                if not passed:
-                    print(f"Build failed for commit {commit}")
-                    run_result["status"] = "failure"
-                    continue
+                if passed:
+                    passed = await run_step(commit, repo_path, server_url, "build")
+                    if not passed:
+                        print(f"Build failed for commit {commit}")
+                        failed_steps = run_result.get("failed_steps", [])
+                        failed_steps.append("build")
+                        run_result["failed_steps"] = failed_steps
+                        run_result["status"] = "failure"
                 # Test step
-                passed = await run_step(commit, repo_path, server_url, "test")
-                if not passed:
-                    print(f"Test failed for commit {commit}")
-                    run_result["status"] = "failure"
-                    continue
+                if passed:
+                    passed = await run_step(commit, repo_path, server_url, "test")
+                    if not passed:
+                        print(f"Test failed for commit {commit}")
+                        failed_steps = run_result.get("failed_steps", [])
+                        failed_steps.append("test")
+                        run_result["failed_steps"] = failed_steps
+                        run_result["status"] = "failure"
 
                 data_manager.add_run(run_result)
             print("CI run complete!")
