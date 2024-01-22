@@ -105,7 +105,7 @@ async def run_step(
         return False
     except httpx.RemoteProtocolError:
         if step == "test":
-            # If a server crash is expected during the 'test' step, handle it.
+            # server crash is expected during the 'test' step.
             print(f"Server crash expected during the 'test' step. Commit {commit}")
             return False
 
