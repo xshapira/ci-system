@@ -23,6 +23,17 @@ app = FastAPI()
 data_manager = CIDataManager()
 
 
+@app.get("/")
+def read_root():
+    return Response("Server is running.")
+
+
+@app.get("/runs")
+def read_runs():
+    runs = data_manager.get_runs()
+    return {"total": len(runs), "data": runs}
+
+
 async def get_current_commit(repo_path: str) -> str:
     """
     Gets the current commit hash of the repository.
@@ -137,33 +148,7 @@ async def ci_service(
                 await run_step(commit, repo_path, server_url, "test")
                 data_manager.add_run(run_result)
 
-                # new_commits.remove(commit)
             print("CI run complete!")
-
-
-async def test_lint_step():
-    repo_path = "/Users/maxshapira/Development/public/orca-security-project"
-    server_url = "http://localhost:8080"
-    commit = "3ea1579cdfaca7a53a7976188aad688cd536e06e"
-
-    while True:
-        passed = await run_step(commit, repo_path, server_url, "lint")
-        if not passed:
-            print("Lint step failed")
-        else:
-            print("Lint step succeeded")
-        await asyncio.sleep(10)
-
-
-@app.get("/")
-def read_root():
-    return Response("Server is running.")
-
-
-@app.get("/runs")
-def read_runs():
-    runs = data_manager.get_runs()
-    return {"total": len(runs), "data": runs}
 
 
 async def main() -> None:
@@ -174,11 +159,8 @@ async def main() -> None:
     if not server_url.startswith("http"):
         server_url = f"http://{server_url}"
 
-    # ci_service(repo_path, server_url)
-
     # start the CI service as a background task
     asyncio.create_task(ci_service(repo_path, server_url, data_manager))
-    # asyncio.create_task(test_lint_step())
 
     # configure and run the FastAPI app on a different port
     uvicorn_config = uvicorn.Config(app=app, host="0.0.0.0", port=9000, loop="asyncio")
@@ -187,7 +169,4 @@ async def main() -> None:
 
 
 if __name__ == "__main__":
-    # loop = asyncio.get_event_loop()
-    # loop.run_until_complete(main())
-
     asyncio.run(main())
