@@ -68,7 +68,8 @@ For a more interactive experience, visit:
 http://0.0.0.0:9000/docs
 ```
 
-Get All CI Runs
+**Get All CI Runs**
+
 Retrieve a list of all CI workflow runs with their commit hashes and status.
 
 GET `/runs`
@@ -94,6 +95,10 @@ Response body:
   ]
 }
 ```
+
+**Get CI Run Details by Commit Hash**
+
+Retrieve the details of a specific CI run by providing its commit id.
 
 GET `/run/{commit_hash}`
 
