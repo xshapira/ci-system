@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "ci-server"
+name = "ci-system"
 version = "0.0.2"
 description = ""
 authors = ["Max Shapira <max@winoutt.com>"]
