@@ -1,4 +1,4 @@
-# CI Server
+# Continuous Integration (CI) System
 
 ## Step Runner
 
@@ -7,7 +7,7 @@ A go program that simulates a build server. To run it, you can:
 * Run with docker (Recommended):
 
 ```docker
-  docker build -t ci-server . && docker run -it -p 8080:8080 ci-server
+  docker build -t ci-system . && docker run -it -p 8080:8080 ci-system
   ```
 
 * Run locally in the root directory of this project:
