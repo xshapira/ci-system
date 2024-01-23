@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "orca-security-project"
+name = "ci-server"
 version = "0.0.2"
 description = ""
 authors = ["Max Shapira <max@winoutt.com>"]
