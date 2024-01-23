@@ -1,16 +1,22 @@
-# orca-ci-system-hiring-exercise
+# CI Server
 
 ## Step Runner
 
-A go program that simulates a build server for the exercise. To run it, you can:
+A go program that simulates a build server. To run it, you can:
 
-### Usage
+* Run with docker (Recommended):
 
-* Run the docker (Recommended): Run `docker build -t orca-ci-system-hiring-exercise . && docker run -it -p 8080:8080 orca-ci-system-hiring-exercise`
-* Run locally: Run `go run main.go` in the root directory of this project.
+```docker
+  docker build -t ci-server . && docker run -it -p 8080:8080 ci-server
+  ```
 
-You can control the server address with the `ORCA_STEP_RUNNER_SERVER_ADDR`
-environment variable, by default it will be `:8080`.
+* Run locally in the root directory of this project:
+
+```go
+  go run main.go
+  ```
+
+You can control the server address with the `STEP_RUNNER_SERVER_ADDR` environment variable, by default it will be `:8080` .
 
 ### API documentation
 
@@ -22,12 +28,12 @@ curl -X POST http://localhost:8080/step/trigger \
      -H 'Content-Type: application/json' \
      -d '{
            "step_name": "lint",
-           "repo_path": "/some/path/to/repo",
+           "repo_path": "/some/path/to/local/repo",
            "commit_hash": "1234567890"
          }'
 ```
 
-There can be three steps in `step_name`: `lint`, `build`, and `test`.
+There can be three steps in `step_name` : `lint` , `build` , and `test` .
 
 * The `lint` step will always succeed and can run in parallel.
 * The `build` step might succeed and might fail, and can't run in parallel with
@@ -37,28 +43,72 @@ There can be three steps in `step_name`: `lint`, `build`, and `test`.
 
 ### Notes
 
-The server is unstable - that is on purpose to simulate the realities of working
-with a real CI pipeline that sometimes fails and sometimes crashes!
-
-There isn't more documentation about the step runner. Review the code in main.go
-if you want to know more.
+The server is *intentionally* **unstable** to simulate the real experience of working with a CI pipeline that may occasionally fail or crash.
 
 ## CI Server
 
-Buggy Barry and Crash Carla started writing a CI server that watches a local git
-repo and uses the step runner to run `lint`, `build`, and `test` on every
-commit... But they left it with bad code and it's unfinished.
+The CI server watches a local git
+repo and uses the step runner to run `lint` , `build` , and `test` on every
+commit.
 
 To run the CI server, run the following command:
 
 ```bash
 poetry install
-poetry run python ci_server.py
+poetry run python ci_server.py "/some/path/to/local/repo" ":8080"
 ```
 
-If you're having issues with `poetry` you can use `pip` instead:
+## Endpoints
+
+These endpoints are part of the CI Server to manage and view the CI runs and their statuses.
+
+For a more interactive experience, visit:
 
 ```bash
-pip install -r requirements.txt
-python ci_server.py
+http://0.0.0.0:9000/docs
+```
+
+Get All CI Runs
+Retrieve a list of all CI workflow runs with their commit hashes and status.
+
+GET `/runs`
+
+Response body:
+
+```json
+{
+  "total": 2,
+  "data": [
+    {
+      "id": "e7d326e98add46f08f713c1829d29b01fb926c58",
+      "status": "success"
+    },
+    {
+      "id": "475249b294a48bf509c6ef36d9c3e52370b33f0b",
+      "status": "failure",
+      "failed_steps": [
+        "build",
+        "test"
+      ]
+    }
+  ]
+}
+```
+
+GET `/run/{commit_hash}`
+
+Replace `{commit_hash}` with the actual commit id to get the details of that particular CI run.
+
+Example Request: `/run/e34157851e`
+
+Response body:
+
+```json
+{
+  "id": "e34157851e",
+  "status": "failure",
+  "failed_steps": [
+    "test"
+  ]
+}
 ```
