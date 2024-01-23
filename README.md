@@ -1,4 +1,4 @@
-# CI Server
+# Continuous Integration (CI) System
 
 ## Step Runner
 
