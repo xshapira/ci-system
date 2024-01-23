@@ -1,4 +1,4 @@
-module github.com/xshapira/ci-server
+module github.com/xshapira/ci-system
 
 go 1.20
 
