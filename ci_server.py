@@ -178,7 +178,12 @@ async def main() -> None:
     asyncio.create_task(ci_service(repo_path, server_url, data_manager))
 
     # configure and run the FastAPI app on a different port
-    uvicorn_config = uvicorn.Config(app=app, host="0.0.0.0", port=9000, loop="asyncio")
+    uvicorn_config = uvicorn.Config(
+        app=app,
+        host="0.0.0.0",
+        port=9000,
+        loop="asyncio",
+    )
     server = uvicorn.Server(config=uvicorn_config)
     await server.serve()
 
