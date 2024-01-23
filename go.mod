@@ -1,4 +1,4 @@
-module github.com/orcasecurity/orca-ci-system-hiring-exercise
+module github.com/xshapira/ci-server
 
 go 1.20
 
