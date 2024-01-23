@@ -142,7 +142,7 @@ async def ci_service(
 
 
 async def test_lint_step():
-    repo_path = "/Users/maxshapira/Development/public/orca-security-project"
+    repo_path = "/Users/maxshapira/Development/public/ci-server"
     server_url = "http://localhost:8080"
     commit = "3ea1579cdfaca7a53a7976188aad688cd536e06e"
 
