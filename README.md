@@ -57,3 +57,52 @@ To run the CI server, run the following command:
 poetry install
 poetry run python ci_server.py "/some/path/to/local/repo" ":8080"
 ```
+
+## Endpoints
+
+These endpoints are part of the CI Server to manage and view the CI runs and their statuses.
+
+Get All CI Runs
+Retrieve a list of all CI workflow runs with their commit hashes and status.
+
+GET `/runs`
+
+Response body:
+
+```json
+{
+  "total": 2,
+  "data": [
+    {
+      "id": "e7d326e98add46f08f713c1829d29b01fb926c58",
+      "status": "success"
+    },
+    {
+      "id": "475249b294a48bf509c6ef36d9c3e52370b33f0b",
+      "status": "failure",
+      "failed_steps": [
+        "build",
+        "test"
+      ]
+    }
+  ]
+}
+```
+
+GET `/run/{commit_hash}`
+
+Replace `{commit_hash}` with the actual commit id to get the details of that particular CI run.
+
+Example Request: `/run/e34157851e`
+
+Response body:
+
+```json
+{
+  "id": "e34157851e",
+  "status": "failure",
+  "failed_steps": [
+    "test"
+  ]
+}
+```
