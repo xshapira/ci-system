@@ -62,6 +62,12 @@ poetry run python ci_server.py "/some/path/to/local/repo" ":8080"
 
 These endpoints are part of the CI Server to manage and view the CI runs and their statuses.
 
+For a more interactive experience, visit:
+
+```bash
+http://0.0.0.0:9000/docs
+```
+
 Get All CI Runs
 Retrieve a list of all CI workflow runs with their commit hashes and status.
 
