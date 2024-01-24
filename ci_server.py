@@ -1,6 +1,7 @@
 import asyncio
 import sys
 import time
+from collections import deque
 
 import httpx
 import uvicorn
@@ -134,7 +135,7 @@ async def ci_service(
         server_url (str): The URL of the server.
     """
     last_commit = await get_current_commit(repo_path)
-    new_commits = []
+    new_commits = deque()
 
     while True:
         current_commit = await get_current_commit(repo_path)
@@ -146,7 +147,7 @@ async def ci_service(
 
         if new_commits and time.time() % 10 < 1:
             while new_commits:
-                commit = new_commits.pop(0)
+                commit = new_commits.popleft()
                 run_result = {
                     "id": commit,
                     "status": "success",
