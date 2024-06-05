@@ -12,7 +12,7 @@ uvicorn = "^0.26.0"
 httpx = "^0.26.0"
 
 [tool.poetry.group.dev.dependencies]
-ruff = "^0.1.14"
+ruff = "^0.4.7"
 mypy = "^1.7.0"
 pre-commit = "^3.6.0"
 
