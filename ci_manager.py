@@ -1,4 +1,5 @@
 import asyncio
+import functools
 import time
 from collections import deque
 
@@ -15,6 +16,11 @@ class CIDataManager:
 
     def get_runs(self):
         return self.ci_runs
+
+    @classmethod
+    @functools.cache
+    def get_instance(cls):
+        return cls()
 
 
 async def get_current_commit(repo_path: str) -> str:

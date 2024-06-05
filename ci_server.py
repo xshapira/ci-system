@@ -11,7 +11,7 @@ app = FastAPI()
 
 
 def get_data_manager():
-    return CIDataManager()
+    return CIDataManager.get_instance()
 
 
 @app.get("/")
@@ -36,7 +36,7 @@ def read_run(
 
 
 async def main() -> None:
-    data_manager = CIDataManager()
+    data_manager = CIDataManager.get_instance()
     repo_path = sys.argv[1]
     server_port = sys.argv[2].lstrip(":")
     server_url = f"http://localhost:{server_port}/step/trigger"
