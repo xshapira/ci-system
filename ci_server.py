@@ -37,7 +37,7 @@ def read_runs():
 
 @app.get("/run/{commit_hash}")
 def read_run(commit_hash: str):
-    # Search for specific commit in the data_manager's records
+    # Search for specific commit in data_manager's records
     for run in data_manager.get_runs():
         if run["id"] == commit_hash:
             return run
@@ -54,7 +54,7 @@ async def get_current_commit(repo_path: str) -> str:
         str: The current commit hash.
     """
 
-    # execute a git command asynchronously to get current commit hash
+    # execute git command asynchronously to get current commit hash
     process = await asyncio.create_subprocess_exec(
         "git",
         "-C",
@@ -143,7 +143,7 @@ async def ci_service(
             new_commits.append(current_commit)
             last_commit = current_commit
 
-        await asyncio.sleep(1)  # non-blocking sleep
+        await asyncio.sleep(1)
 
         if new_commits and time.time() % 10 < 1:
             while new_commits:
@@ -156,10 +156,9 @@ async def ci_service(
                     passed = await run_step(commit, repo_path, server_url, step)
                     if not passed:
                         print(f"{step.capitalize()} failed for commit {commit}")
-                        # If 'failed_steps' doesn't exist, return empty list
                         failed_steps = run_result.get("failed_steps", [])
                         failed_steps.append(step)
-                        # Update run_result with modified failed_steps list
+                        # update run_result with modified failed_steps list
                         run_result["failed_steps"] = failed_steps
                         run_result["status"] = "failure"
 
@@ -177,8 +176,6 @@ async def main() -> None:
 
     # start the CI service as a background task
     asyncio.create_task(ci_service(repo_path, server_url, data_manager))
-
-    # configure and run the FastAPI app on a different port
     uvicorn_config = uvicorn.Config(
         app=app,
         host="0.0.0.0",
