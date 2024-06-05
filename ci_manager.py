@@ -5,6 +5,10 @@ from collections import deque
 
 import httpx
 
+from logger import setup_logger
+
+log = setup_logger(__name__)
+
 
 class CIDataManager:
     def __init__(self):
@@ -12,7 +16,7 @@ class CIDataManager:
 
     def add_run(self, run_data):
         self.ci_runs.append(run_data)
-        print(f"Added run data: {run_data}")
+        log.info(f"Added run data: {run_data}")
 
     def get_runs(self):
         return self.ci_runs
@@ -74,7 +78,7 @@ async def run_step(
         "step_name": step,
         "repo_path": repo_path,
     }
-    print(f"Sending request to {server_url} with data: {request_data}")
+    log.info(f"Sending request to {server_url} with data: {request_data}")
 
     try:
         async with httpx.AsyncClient() as client:
@@ -82,7 +86,7 @@ async def run_step(
                 server_url,
                 json=request_data,
             )
-        print(f"Response for {step} step: {response.status_code}, {response.text}")
+        log.info(f"Response for {step} step: {response.status_code}, {response.text}")
 
         if response.status_code != 200:
             return False
@@ -90,12 +94,12 @@ async def run_step(
         return response_data.get("status") == "Success"
 
     except httpx.HTTPError as exc:
-        print(f"HTTP error occurred: {exc}")
+        log.info(f"HTTP error occurred: {exc}")
         return False
     except httpx.RemoteProtocolError:
         if step == "test":
             # server crash is expected during the 'test' step.
-            print(
+            log.info(
                 "Server crash expected during the 'test' step. ",
                 f"Commit: {commit}",
             )
@@ -135,7 +139,7 @@ async def ci_service(
                 for step in ["lint", "build", "test"]:
                     passed = await run_step(commit, repo_path, server_url, step)
                     if not passed:
-                        print(f"{step.capitalize()} failed for commit {commit}")
+                        log.info(f"{step.capitalize()} failed for commit {commit}")
                         failed_steps = run_result.get("failed_steps", [])
                         failed_steps.append(step)
                         # update run_result with modified failed_steps list
@@ -143,4 +147,4 @@ async def ci_service(
                         run_result["status"] = "failure"
 
                 data_manager.add_run(run_result)
-            print("CI run complete!")
+            log.info("CI run complete!")
