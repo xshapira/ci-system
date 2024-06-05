@@ -36,7 +36,7 @@ def read_run(
 
 
 async def main() -> None:
-    data_manager = CIDataManager.get_instance()
+    data_manager = get_data_manager()
     repo_path = sys.argv[1]
     server_port = sys.argv[2].lstrip(":")
     server_url = f"http://localhost:{server_port}/step/trigger"
